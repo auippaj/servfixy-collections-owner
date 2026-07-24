@@ -161,6 +161,199 @@ function CaseRow({ c }) {
 }
 
 // ── Main App ──────────────────────────────────────────────────────────────────
+// ── AI Reports Tab ───────────────────────────────────────────────────────────
+function AIReportsTab({ user, token, properties, allCases }) {
+  const [query, setQuery]       = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [result, setResult]     = useState(null);
+  const [history, setHistory]   = useState([]);
+  const textareaRef             = React.useRef(null);
+
+  const SUGGESTIONS = [
+    'Show all cases over $3,000',
+    'Which properties are getting worse month over month?',
+    'List every case in legal pipeline by property',
+    'Show high risk residents — 91+ days with no notice issued',
+    'Compare delinquency rates across all properties',
+    'What is my total exposure by aging bucket?',
+  ];
+
+  const buildContext = () => {
+    const propSummaries = properties.map(p => ({
+      name: p.name, city: p.city, state: p.state, units: p.unit_count,
+      active_cases: p.case_count, legal_cases: p.legal_count,
+      total_balance: p.total_balance,
+      aging: p.aging
+    }));
+    const caseRows = allCases
+      .filter(c => !['closed_paid','closed_written_off'].includes(c.status))
+      .map(c => ({
+        resident: c.resident_name, unit: c.unit_number,
+        property: c.property_name || properties.find(p=>p.id===c.property_id)?.name || '',
+        balance: Number(c.balance_owed), aging: c.aging_bucket,
+        status: c.status, attorney: c.attorney_name || null,
+        notice_date: c.notice_issued_date || null, times_late: c.times_late
+      }));
+    return { properties: propSummaries, cases: caseRows };
+  };
+
+  const handleAsk = async (q) => {
+    const question = (q || query).trim();
+    if (!question) return;
+    setLoading(true); setResult(null);
+    const ctx = buildContext();
+    const prompt = `You are a collections analytics assistant for a multifamily property management company.
+The owner has ${ctx.properties.length} properties and ${ctx.cases.length} active delinquency cases.
+
+PORTFOLIO DATA:
+${JSON.stringify(ctx.properties, null, 2)}
+
+ACTIVE CASES (${ctx.cases.length} total):
+${JSON.stringify(ctx.cases, null, 2)}
+
+OWNER QUESTION: "${question}"
+
+Respond with a clear, structured answer. Use markdown-style formatting:
+- Use **bold** for key numbers and property names
+- Use bullet lists for case lists
+- Lead with a one-line summary answer
+- Then provide the detail
+- If listing cases, include: resident name, unit, property, balance, status, aging bucket
+- Keep it concise and actionable — this is an executive owner view
+- Do not make up data. Only use what is provided above.`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      const data = await res.json();
+      const text = data.content?.[0]?.text || 'No response.';
+      const entry = { question, answer: text, ts: new Date() };
+      setResult(entry);
+      setHistory(h => [entry, ...h.slice(0, 4)]);
+      setQuery('');
+    } catch (err) {
+      setResult({ question, answer: 'Error: ' + err.message, ts: new Date() });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Simple markdown renderer
+  const renderAnswer = (text) => {
+    const lines = text.split('\n');
+    return lines.map((line, i) => {
+      if (line.startsWith('- ') || line.startsWith('* ')) {
+        const inner = line.slice(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '4px', paddingLeft: '8px' }}>
+          <span style={{ color: '#1d4ed8', flexShrink: 0 }}>·</span>
+          <span dangerouslySetInnerHTML={{ __html: inner }} style={{ fontSize: '13px', color: '#1e293b', lineHeight: '1.6' }} />
+        </div>;
+      }
+      if (line.trim() === '') return <div key={i} style={{ height: '8px' }} />;
+      const inner = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      return <p key={i} dangerouslySetInnerHTML={{ __html: inner }} style={{ fontSize: '13px', color: '#1e293b', lineHeight: '1.6', marginBottom: '4px' }} />;
+    });
+  };
+
+  return (
+    <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 24px' }}>
+      <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '6px' }}>AI Portfolio Reports</h2>
+      <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '28px' }}>Ask anything about your delinquency data — cases, trends, comparisons, risk.</p>
+
+      {/* Input box */}
+      <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: '20px', marginBottom: '20px' }}>
+        <textarea
+          ref={textareaRef}
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAsk(); } }}
+          placeholder="Ask anything... e.g. 'Which property has the highest delinquency rate?' or 'List all cases over $5,000 in legal pipeline'"
+          rows={3}
+          style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '14px', color: '#0f172a', resize: 'none', outline: 'none', fontFamily: 'Arial, sans-serif', lineHeight: '1.5' }}
+        />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+          <span style={{ fontSize: '11px', color: '#94a3b8' }}>Press Enter to ask · Shift+Enter for new line</span>
+          <button onClick={() => handleAsk()} disabled={loading || !query.trim()}
+            style={{ padding: '10px 22px', borderRadius: '8px', border: 'none', background: loading || !query.trim() ? '#93c5fd' : '#1d4ed8', color: '#fff', fontSize: '14px', fontWeight: '700', cursor: loading || !query.trim() ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {loading ? <><span style={{ width: '14px', height: '14px', borderRadius: '50%', border: '2px solid #fff', borderTopColor: 'transparent', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} /> Analyzing...</> : 'Ask AI'}
+          </button>
+        </div>
+      </div>
+
+      {/* Suggestion chips */}
+      {!result && !loading && (
+        <div style={{ marginBottom: '28px' }}>
+          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '700', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '10px' }}>Try asking</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {SUGGESTIONS.map((s, i) => (
+              <button key={i} onClick={() => { setQuery(s); handleAsk(s); }}
+                style={{ padding: '7px 14px', borderRadius: '20px', border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', color: '#475569', fontSize: '12px', cursor: 'pointer', transition: 'all 0.15s' }}>
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {loading && (
+        <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '32px', textAlign: 'center' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '50%', border: '3px solid #dbeafe', borderTopColor: '#1d4ed8', animation: 'spin 0.7s linear infinite', margin: '0 auto 12px' }} />
+          <div style={{ fontSize: '13px', color: '#475569' }}>Analyzing your portfolio data...</div>
+        </div>
+      )}
+
+      {/* Result */}
+      {result && !loading && (
+        <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid #f1f5f9', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: '13px', fontWeight: '600', color: '#1d4ed8' }}>"{result.question}"</div>
+            <div style={{ fontSize: '11px', color: '#94a3b8' }}>{result.ts.toLocaleTimeString()}</div>
+          </div>
+          <div style={{ padding: '20px 24px' }}>
+            {renderAnswer(result.answer)}
+          </div>
+          <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '10px' }}>
+            <button onClick={() => { setResult(null); setQuery(''); }}
+              style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid #e2e8f0', backgroundColor: 'transparent', color: '#475569', fontSize: '12px', cursor: 'pointer' }}>
+              Ask another question
+            </button>
+            <button onClick={() => {
+              const text = result.question + '\n\n' + result.answer;
+              navigator.clipboard.writeText(text).catch(() => {});
+            }}
+              style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid #e2e8f0', backgroundColor: 'transparent', color: '#475569', fontSize: '12px', cursor: 'pointer' }}>
+              Copy
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* History */}
+      {history.length > 1 && (
+        <div>
+          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '700', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '10px' }}>Previous Questions</div>
+          {history.slice(1).map((h, i) => (
+            <div key={i} onClick={() => setResult(h)}
+              style={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '12px 16px', marginBottom: '8px', cursor: 'pointer' }}>
+              <div style={{ fontSize: '13px', color: '#1d4ed8', marginBottom: '3px' }}>"{h.question}"</div>
+              <div style={{ fontSize: '12px', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{h.answer.slice(0, 100)}...</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
 function Dashboard({ user, token, onLogout }) {
   const [properties, setProperties]   = useState([]);
   const [allCases, setAllCases]       = useState([]);
@@ -168,6 +361,7 @@ function Dashboard({ user, token, onLogout }) {
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [activeTab, setActiveTab]     = useState('overview');
 
   const h = { Authorization: `Bearer ${token}` };
 
@@ -253,7 +447,19 @@ function Dashboard({ user, token, onLogout }) {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '32px 24px' }}>
+      {/* Tab bar */}
+      <div style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', padding: '0 32px', display: 'flex', gap: '0' }}>
+        {[{ key: 'overview', label: 'Overview' }, { key: 'reports', label: '✦ AI Reports' }].map(tab => (
+          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+            style={{ padding: '14px 20px', border: 'none', borderBottom: activeTab === tab.key ? '2px solid #1d4ed8' : '2px solid transparent', backgroundColor: 'transparent', color: activeTab === tab.key ? '#1d4ed8' : '#94a3b8', fontSize: '13px', fontWeight: activeTab === tab.key ? '700' : '400', cursor: 'pointer', transition: 'all 0.15s' }}>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'reports' && <AIReportsTab user={user} token={token} properties={properties} allCases={allCases} />}
+
+      {activeTab === 'overview' && <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '32px 24px' }}>
 
         {/* Portfolio KPI bar */}
         <div style={{ marginBottom: '28px' }}>
@@ -341,7 +547,7 @@ function Dashboard({ user, token, onLogout }) {
             )}
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }
