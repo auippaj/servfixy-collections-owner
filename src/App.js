@@ -223,17 +223,14 @@ Respond with a clear, structured answer. Use markdown-style formatting:
 - Do not make up data. Only use what is provided above.`;
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch(`${API_URL}/api/ai/collections-query`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: prompt }]
-        })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ prompt })
       });
       const data = await res.json();
-      const text = data.content?.[0]?.text || 'No response.';
+      if (!res.ok) throw new Error(data.error || 'AI request failed');
+      const text = data.text || 'No response.';
       const entry = { question, answer: text, ts: new Date() };
       setResult(entry);
       setHistory(h => [entry, ...h.slice(0, 4)]);
