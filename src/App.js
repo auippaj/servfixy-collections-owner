@@ -20,6 +20,7 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
+  const [portal, setPortal]     = useState('collections'); // 'collections' | 'maintenance'
 
   const doLogin = async (em, pw) => {
     setError(''); setLoading(true);
@@ -32,6 +33,13 @@ function Login({ onLogin }) {
       if (!res.ok) throw new Error(data.error || 'Login failed');
       if (data.user.role !== 'owner' && data.user.role !== 'admin') {
         throw new Error('Access denied. Owner accounts only.');
+      }
+      if (portal === 'maintenance') {
+        // Redirect to maintenance owner portal with token in URL hash
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = 'https://maintenance-owners.servfixy.com';
+        return;
       }
       localStorage.setItem('co_token', data.token);
       localStorage.setItem('co_user', JSON.stringify(data.user));
@@ -53,7 +61,19 @@ function Login({ onLogin }) {
         <img src="/servfixy-logo.png" alt="Servfixy" style={{ width: '420px', marginBottom: '16px', objectFit: 'contain' }} />
 
         {/* Heading */}
-        <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827', marginBottom: '28px', alignSelf: 'flex-start' }}>Owner</h1>
+        <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827', marginBottom: '16px', alignSelf: 'flex-start' }}>Owner</h1>
+
+        {/* Portal toggle */}
+        <div style={{ display: 'flex', alignSelf: 'flex-start', backgroundColor: '#EEF2F7', borderRadius: '50px', padding: '4px', marginBottom: '20px', gap: '4px' }}>
+          {[{ key: 'collections', label: 'Collections' }, { key: 'maintenance', label: 'Maintenance' }].map(({ key, label }) => (
+            <button key={key} onClick={() => { setPortal(key); setError(''); }}
+              style={{ padding: '8px 20px', borderRadius: '50px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', transition: 'all 0.15s',
+                backgroundColor: portal === key ? '#14B8A6' : 'transparent',
+                color: portal === key ? '#ffffff' : '#6b7280' }}>
+              {label}
+            </button>
+          ))}
+        </div>
 
         {error && (
           <div style={{ backgroundColor: '#fef2f2', color: '#dc2626', padding: '12px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}>
