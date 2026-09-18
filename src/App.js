@@ -61,7 +61,7 @@ function Login({ onLogin }) {
         <img src="/servfixy-logo.png" alt="Servfixy" style={{ width: '420px', marginBottom: '16px', objectFit: 'contain' }} />
 
         {/* Heading */}
-        <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827', marginBottom: '16px', alignSelf: 'flex-start' }}>Owner</h1>
+        <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827', marginBottom: '16px', alignSelf: 'flex-start' }}>Hi, Owner</h1>
 
         {/* Portal toggle */}
         <div style={{ display: 'flex', alignSelf: 'flex-start', backgroundColor: '#EEF2F7', borderRadius: '50px', padding: '4px', marginBottom: '20px', gap: '4px' }}>
