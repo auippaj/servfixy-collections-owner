@@ -46,43 +46,45 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ backgroundColor: '#fff', padding: '48px', borderRadius: '12px', width: '100%', maxWidth: '420px', boxShadow: '0 4px 40px rgba(0,0,0,0.10)', border: '1px solid #e2e8f0' }}>
-        <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="https://i.imgur.com/zJis2hK.png" alt="Servfixy" style={{ height: '34px', objectFit: 'contain' }} />
-          <div style={{ background: '#1d4ed8', borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: '700', color: '#fff', letterSpacing: '0.06em' }}>COLLECTIONS</div>
-          <div style={{ background: '#f1f5f9', borderRadius: '6px', padding: '3px 10px', fontSize: '11px', fontWeight: '700', color: '#475569', letterSpacing: '0.06em' }}>OWNER</div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', fontFamily: "'Inter', system-ui, sans-serif", padding: '24px' }}>
+      <div style={{ width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+        {/* Logo */}
+        <img src="https://i.imgur.com/nvDoU8X.png" alt="Servfixy" style={{ width: '280px', marginBottom: '36px', objectFit: 'contain' }} />
+
+        {/* Heading */}
+        <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827', marginBottom: '28px', alignSelf: 'flex-start' }}>Sign in to Collections</h1>
+
+        {error && (
+          <div style={{ backgroundColor: '#fef2f2', color: '#dc2626', padding: '12px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}>
+            {error}
+          </div>
+        )}
+
+        {/* Email */}
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && doLogin(email, password)}
+          placeholder="you@example.com"
+          style={{ width: '100%', padding: '14px 18px', border: 'none', borderRadius: '12px', fontSize: '14px', backgroundColor: '#EEF2F7', boxSizing: 'border-box', marginBottom: '14px', outline: 'none' }} />
+
+        {/* Password */}
+        <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && doLogin(email, password)}
+          placeholder="••••••••"
+          style={{ width: '100%', padding: '14px 18px', border: 'none', borderRadius: '12px', fontSize: '14px', backgroundColor: '#EEF2F7', boxSizing: 'border-box', marginBottom: '24px', outline: 'none' }} />
+
+        {/* Buttons */}
+        <div style={{ alignSelf: 'flex-start', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button onClick={() => doLogin(email, password)} disabled={loading}
+            style={{ padding: '13px 28px', backgroundColor: '#14B8A6', color: 'white', border: 'none', borderRadius: '50px', fontSize: '15px', fontWeight: '700', cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.7 : 1 }}>
+            {loading ? 'Signing in...' : 'Sign In →'}
+          </button>
+          <button onClick={handleDemoLogin} disabled={loading}
+            style={{ padding: '13px 20px', borderRadius: '50px', border: '2px solid #14B8A6', background: 'transparent', color: '#0f766e', fontSize: '14px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '13px' }}>▶</span> Investor Demo
+          </button>
         </div>
-        <h2 style={{ color: '#0f172a', margin: '0 0 6px', fontSize: '20px', fontWeight: '700' }}>Owner Portal</h2>
-        <p style={{ color: '#94a3b8', margin: '0 0 28px', fontSize: '13px' }}>View delinquency and collections across your portfolio</p>
-        {error && <div style={{ backgroundColor: '#fef2f2', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px' }}>{error}</div>}
-        <div style={{ marginBottom: '16px' }}>
-          <label style={{ color: '#94a3b8', fontSize: '12px', display: 'block', marginBottom: '6px' }}>Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && doLogin(email, password)}
-            placeholder="you@example.com"
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', color: '#0f172a', fontSize: '14px', outline: 'none' }} />
-        </div>
-        <div style={{ marginBottom: '28px' }}>
-          <label style={{ color: '#94a3b8', fontSize: '12px', display: 'block', marginBottom: '6px' }}>Password</label>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && doLogin(email, password)}
-            placeholder="••••••••"
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', color: '#0f172a', fontSize: '14px', outline: 'none' }} />
-        </div>
-        <button onClick={() => doLogin(email, password)} disabled={loading}
-          style={{ width: '100%', padding: '13px', borderRadius: '8px', border: 'none', background: loading ? '#1e40af' : '#1d4ed8', color: '#fff', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer' }}>
-          {loading ? 'Signing in...' : 'Sign In'}
-        </button>
-        <div style={{ margin: '20px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }} />
-          <span style={{ color: '#94a3b8', fontSize: '12px' }}>or</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }} />
-        </div>
-        <button onClick={handleDemoLogin} disabled={loading}
-          style={{ width: '100%', padding: '13px', borderRadius: '8px', border: '2px solid #14B8A6', background: 'transparent', color: '#0f766e', fontSize: '14px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          <span>▶</span> Investor Demo Login
-        </button>
+
       </div>
     </div>
   );
@@ -436,7 +438,7 @@ function Dashboard({ user, token, onLogout }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="https://i.imgur.com/zJis2hK.png" alt="Servfixy" style={{ height: '28px', objectFit: 'contain' }} />
           <div style={{ background: '#1d4ed8', borderRadius: '5px', padding: '2px 8px', fontSize: '10px', fontWeight: '700', color: '#fff', letterSpacing: '0.08em' }}>COLLECTIONS</div>
-          <div style={{ background: '#f1f5f9', borderRadius: '5px', padding: '2px 8px', fontSize: '10px', fontWeight: '700', color: '#475569', letterSpacing: '0.08em' }}>OWNER</div>
+
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <span style={{ fontSize: '13px', color: '#475569' }}>{user.first_name || user.email}</span>
