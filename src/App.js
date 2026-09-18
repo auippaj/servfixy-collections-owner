@@ -46,11 +46,11 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', fontFamily: "'Inter', system-ui, sans-serif", padding: '24px' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', fontFamily: "'Inter', system-ui, sans-serif", padding: '8px 16px' }}>
       <div style={{ width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
         {/* Logo */}
-        <img src="/servfixy-logo.png" alt="Servfixy" style={{ width: '280px', marginBottom: '36px', objectFit: 'contain' }} />
+        <img src="/servfixy-logo.png" alt="Servfixy" style={{ width: '420px', marginBottom: '16px', objectFit: 'contain' }} />
 
         {/* Heading */}
         <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827', marginBottom: '28px', alignSelf: 'flex-start' }}>Sign in to Collections</h1>
