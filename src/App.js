@@ -50,7 +50,7 @@ function Login({ onLogin }) {
       <div style={{ width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
         {/* Logo */}
-        <img src="https://i.imgur.com/nvDoU8X.png" alt="Servfixy" style={{ width: '280px', marginBottom: '36px', objectFit: 'contain' }} />
+        <img src="/servfixy-logo.png" alt="Servfixy" style={{ width: '280px', marginBottom: '36px', objectFit: 'contain' }} />
 
         {/* Heading */}
         <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827', marginBottom: '28px', alignSelf: 'flex-start' }}>Sign in to Collections</h1>
@@ -436,7 +436,7 @@ function Dashboard({ user, token, onLogout }) {
       {/* Top Nav */}
       <div style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', padding: '0 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '56px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="https://i.imgur.com/zJis2hK.png" alt="Servfixy" style={{ height: '28px', objectFit: 'contain' }} />
+          <img src="/servfixy-logo.png" alt="Servfixy" style={{ height: '28px', objectFit: 'contain' }} />
           <div style={{ background: '#1d4ed8', borderRadius: '5px', padding: '2px 8px', fontSize: '10px', fontWeight: '700', color: '#fff', letterSpacing: '0.08em' }}>COLLECTIONS</div>
 
         </div>
