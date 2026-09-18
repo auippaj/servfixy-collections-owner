@@ -53,7 +53,7 @@ function Login({ onLogin }) {
         <img src="/servfixy-logo.png" alt="Servfixy" style={{ width: '420px', marginBottom: '16px', objectFit: 'contain' }} />
 
         {/* Heading */}
-        <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827', marginBottom: '28px', alignSelf: 'flex-start' }}>Sign in to Collections</h1>
+        <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827', marginBottom: '28px', alignSelf: 'flex-start' }}>Owner</h1>
 
         {error && (
           <div style={{ backgroundColor: '#fef2f2', color: '#dc2626', padding: '12px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}>
