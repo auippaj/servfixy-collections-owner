@@ -61,7 +61,7 @@ function Login({ onLogin }) {
         <img src="/servfixy-logo.png" alt="Servfixy" style={{ width: '420px', marginBottom: '16px', objectFit: 'contain' }} />
 
         {/* Heading */}
-        <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#111827', marginBottom: '16px', alignSelf: 'flex-start' }}>Hi, Owner</h1>
+        
 
         {/* Portal toggle */}
         <div style={{ display: 'flex', alignSelf: 'flex-start', backgroundColor: '#EEF2F7', borderRadius: '50px', padding: '4px', marginBottom: '20px', gap: '4px' }}>
@@ -94,15 +94,12 @@ function Login({ onLogin }) {
           style={{ width: '100%', padding: '14px 18px', border: 'none', borderRadius: '12px', fontSize: '14px', backgroundColor: '#EEF2F7', boxSizing: 'border-box', marginBottom: '24px', outline: 'none' }} />
 
         {/* Buttons */}
-        <div style={{ alignSelf: 'flex-start', display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ alignSelf: 'flex-start', display: 'flex', gap: '16px', alignItems: 'center' }}>
           <button onClick={() => doLogin(email, password)} disabled={loading}
             style={{ padding: '13px 28px', backgroundColor: '#14B8A6', color: 'white', border: 'none', borderRadius: '50px', fontSize: '15px', fontWeight: '700', cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.7 : 1 }}>
             {loading ? 'Signing in...' : 'Sign In →'}
           </button>
-          <button onClick={handleDemoLogin} disabled={loading}
-            style={{ padding: '13px 20px', borderRadius: '50px', border: '2px solid #14B8A6', background: 'transparent', color: '#0f766e', fontSize: '14px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '13px' }}>▶</span> Investor Demo
-          </button>
+          <span style={{ fontSize: '22px', fontWeight: '700', color: '#0482FD' }}>Owner</span>
         </div>
 
       </div>
