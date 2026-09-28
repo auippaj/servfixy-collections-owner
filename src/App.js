@@ -58,7 +58,7 @@ function Login({ onLogin }) {
       <div style={{ width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
         {/* Logo */}
-        <img src="/servfixy-logo.png" alt="Servfixy" style={{ width: '420px', marginBottom: '16px', objectFit: 'contain' }} />
+        <img src="https://i.imgur.com/OPDKgyD.png" alt="Servfixy" style={{ width: '420px', marginBottom: '16px', objectFit: 'contain' }} />
 
         {/* Heading */}
         
@@ -453,7 +453,7 @@ function Dashboard({ user, token, onLogout }) {
       {/* Top Nav */}
       <div style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', padding: '0 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '56px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/servfixy-logo.png" alt="Servfixy" style={{ height: '28px', objectFit: 'contain' }} />
+          <img src="https://i.imgur.com/OPDKgyD.png" alt="Servfixy" style={{ height: '28px', objectFit: 'contain' }} />
           <div style={{ background: '#1d4ed8', borderRadius: '5px', padding: '2px 8px', fontSize: '10px', fontWeight: '700', color: '#fff', letterSpacing: '0.08em' }}>COLLECTIONS</div>
 
         </div>
